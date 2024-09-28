@@ -1,0 +1,202 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: sans-serif;
+}
+body {
+    color: #001c35;
+    background-color: #e3eafc;
+    font-family: "Poppins", sans-serif;
+  }
+  
+input{
+    display: none;
+}
+
+.container{
+    width: 100%;
+    text-align: center;
+}
+
+h1{
+    font-weight: normal;
+    font-size: 35px;
+    position: relative;
+    margin: 40px 0;
+}
+
+h1::before{
+    content: '';
+    position: absolute;
+    width: 200px;
+    height: 3px;
+    background-color: rgb(20, 93, 220);
+    bottom: -10px;
+    left: 50%;
+    transform: translate(-50%);
+    animation: animate 4s linear infinite;
+}
+@keyframes animate{
+    0%{
+        width: 100px;
+    }
+    50%{
+        width: 200px;
+    }
+    100%{
+        width: 100px;
+    }
+}
+
+.top-content{
+    background-color: rgb(211, 210, 210);
+    width: 90%;
+    margin: 0 auto 20px auto;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    border-radius: 5px;
+    box-shadow: 3px 3px 5px lightgray;
+}
+h3{
+    height: 100%;
+    background-color: lightgray;
+    line-height:  60px;
+    padding: 0 50px;
+    color: white;
+
+}
+label{
+    display: inline-block;
+    height: 100%;
+    margin: 0 20px;
+    padding: 0 5px;
+    line-height: 60px;
+    font-size: 18px;
+    color: gray;
+    cursor: pointer;
+    transition: .5s; 
+}
+label:hover{
+    color: black;
+}
+
+.photo-gallery{
+    width: 90%;
+    margin: auto;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-gap: 20px;
+    box-shadow: 2px 2px 4px lightgray;
+}
+.pic{
+    position: relative;
+    height: 230px;
+    border-radius: 10px;
+    box-shadow: 3px 3px 5px lightgray;
+    cursor: pointer;
+    transition: .5s;
+}
+.pic img{
+    width: 100%;
+    height: 100%;
+    border-radius: 10px;
+    transition: .5s;
+}
+.pic video{
+    width: 380px;
+    height: auto;
+    border-radius:10px;
+    transition: .5s;
+}
+
+.pic:hover::after{
+    height: 100%;
+}
+.pic:hover::before{
+    margin-top: 0;
+    opacity: 1;
+}
+#check1:checked ~ .container .photo-gallery .pic{
+    opacity: 1;
+    transform: scale(1);
+    position: relative;
+    transition: .0s;
+
+}
+#check2:checked ~ .container .photo-gallery .family{
+    opacity: 1;
+    transform: scale(1);
+    position: relative;
+}
+#check2:checked ~ .container .photo-gallery .child,
+#check2:checked ~ .container .photo-gallery .place,
+#check2:checked ~ .container .photo-gallery .wedd,
+#check2:checked ~ .container .photo-gallery .video{
+    opacity: 0;
+    transform: scale(0);
+    position: absolute;
+    transition: .0s;
+
+}
+#check3:checked ~ .container .photo-gallery .child{
+    opacity: 1;
+    transform: scale(1);
+    position: relative;
+}
+#check3:checked ~ .container .photo-gallery .family,
+#check3:checked ~ .container .photo-gallery .place,
+#check3:checked ~ .container .photo-gallery .wedd,
+#check3:checked ~ .container .photo-gallery .video{
+    opacity: 0;
+    transform: scale(0);
+    position: absolute;
+    transition: .0s;
+
+}
+#check4:checked ~ .container .photo-gallery .place{
+    opacity: 1;
+    transform: scale(1);
+    position: relative;
+}
+#check4:checked ~ .container .photo-gallery .family,
+#check4:checked ~ .container .photo-gallery .child,
+#check4:checked ~ .container .photo-gallery .wedd,
+#check4:checked ~ .container .photo-gallery .video{
+    opacity: 0;
+    transform: scale(0);
+    position: absolute;
+    transition: .0s;
+
+}
+#check5:checked ~ .container .photo-gallery .wedd{
+    opacity: 1;
+    transform: scale(1);
+    position: relative;
+}
+#check5:checked ~ .container .photo-gallery .family,
+#check5:checked ~ .container .photo-gallery .child,
+#check5:checked ~ .container .photo-gallery .place,
+#check5:checked ~ .container .photo-gallery .video{
+    opacity: 0;
+    transform: scale(0);
+    position: absolute;
+    transition: .0s;
+
+}
+#check6:checked ~ .container .photo-gallery .video{
+    opacity: 1;
+    transform: scale(1);
+    position: relative;
+}
+#check6:checked ~ .container .photo-gallery .family,
+#check6:checked ~ .container .photo-gallery .child,
+#check6:checked ~ .container .photo-gallery .place,
+#check6:checked ~ .container .photo-gallery .wedd{
+    opacity: 0;
+    transform: scale(0);
+    position: absolute;
+    transition: .0s;
+
+}
