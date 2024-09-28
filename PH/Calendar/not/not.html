@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Reminder</title>
+    <style>
+      body {
+        font-family: "Arial", sans-serif;
+        color: #0e82e7;
+        background-color: #e3eafc;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 0;
+      }
+
+      .container {
+        max-width: 500px;
+        background-color: aliceblue;
+        padding: 20px;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+      }
+
+      label,
+      input,
+      button {
+        margin: 10px 0;
+        box-sizing: border-box;
+      }
+
+      input {
+        width: 100%;
+        margin-top: 5px;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+      }
+
+      th,
+      td {
+        padding: 5px;
+        border: 1px solid white;
+        text-align: center;
+      }
+
+      th {
+        background-color: #299ce9;
+        color: black;
+      }
+
+      button {
+        display: block;
+        width: 100%;
+        padding: 10px;
+        background-color: #299ce9;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+
+      button:hover {
+        background-color: #217dbb;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h2 style="text-align: center">Reminder</h2>
+
+      <label for="title">Title :</label>
+      <input type="text" id="title" />
+      <label for="description">Description :</label>
+      <input type="text" id="description" />
+      <label for="date">Date :</label>
+      <input type="date" id="date" />
+      <label for="time">Time :</label>
+      <input type="time" id="time" />
+
+      <button style="width: 100%" onclick="scheduleReminder();">
+        Schedule Reminder
+      </button>
+
+      <table border="1">
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>Description</th>
+            <th>Date & Time</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="reminderTableBody"></tbody>
+      </table>
+    </div>
+
+    <script>
+      if ("Notification" in window) {
+        Notification.requestPermission().then(function (permission) {
+          if (Notification.permission !== "granted") {
+            alert("Please allow notifications access!");
+            location.reload();
+          }
+        });
+      }
+
+      var timeoutIds = [];
+
+      function scheduleReminder() {
+        var title = document.getElementById("title").value;
+        var description = document.getElementById("description").value;
+        var date = document.getElementById("date").value;
+        var time = document.getElementById("time").value;
+
+        var dateTimeString = date + " " + time;
+        var scheduledTime = new Date(dateTimeString);
+        var currentTime = new Date();
+        var timeDifference = scheduledTime - currentTime;
+
+        if (timeDifference > 0) {
+          addReminder(title, description, dateTimeString);
+          sendReminderToServer(title, description, date, time);
+
+          // Schedule the notification to be shown when the reminder time is reached
+          var timeoutId = setTimeout(function () {
+            // Show notification when time is met
+            if (Notification.permission === "granted") {
+              var notification = new Notification("Reminder Alert!", {
+                body: `You have a reminder set for this time: "${title} - ${description}"`,
+                requireInteraction: true, // Keeps notification until the user dismisses it
+              });
+            } else {
+              alert("Notification permission is not granted.");
+            }
+          }, timeDifference);
+
+          // Store the timeout ID for potential cancellation
+          timeoutIds.push(timeoutId);
+        } else {
+          alert("The scheduled time is in the past!");
+        }
+      }
+      function addReminder(title, description, dateTimeString, reminderId) {
+        var tableBody = document.getElementById("reminderTableBody");
+
+        var row = tableBody.insertRow();
+        row.setAttribute("data-reminder-id", reminderId);
+        var titleCell = row.insertCell(0);
+        var descriptionCell = row.insertCell(1);
+        var dateTimeCell = row.insertCell(2);
+        var actionCell = row.insertCell(3);
+
+        titleCell.innerHTML = title;
+        descriptionCell.innerHTML = description;
+        dateTimeCell.innerHTML = dateTimeString;
+        actionCell.innerHTML =
+          '<button onclick="deleteReminder(' +
+          reminderId +
+          ');">Delete</button>';
+      }
+
+      function deleteReminder(reminderId) {
+        var tableBody = document.getElementById("reminderTableBody");
+
+        // Make an AJAX request to delete the reminder from the server
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "delete_reminder.php", true);
+        xhr.setRequestHeader(
+          "Content-Type",
+          "application/x-www-form-urlencoded"
+        );
+
+        var params = "reminder_id=" + encodeURIComponent(reminderId);
+
+        xhr.onreadystatechange = function () {
+          if (xhr.readyState === XMLHttpRequest.DONE) {
+            var response = JSON.parse(xhr.responseText);
+            if (response.status) {
+              console.log(response.msg); // Success message
+
+              // Find and remove the row with the matching reminder ID
+              var rows = tableBody.rows;
+              for (var i = 0; i < rows.length; i++) {
+                if (rows[i].getAttribute("data-reminder-id") == reminderId) {
+                  rows[i].remove();
+                  break;
+                }
+              }
+            } else {
+              alert(response.msg); // Display error message
+            }
+          }
+        };
+        xhr.send(params);
+      }
+
+      function sendReminderToServer(title, description, date, time) {
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "save_reminder.php", true);
+        xhr.setRequestHeader(
+          "Content-Type",
+          "application/x-www-form-urlencoded"
+        );
+
+        var params =
+          "title=" +
+          encodeURIComponent(title) +
+          "&description=" +
+          encodeURIComponent(description) +
+          "&date=" +
+          encodeURIComponent(date) +
+          "&time=" +
+          encodeURIComponent(time);
+
+        xhr.onreadystatechange = function () {
+          if (xhr.readyState === XMLHttpRequest.DONE) {
+            console.log("Response from server:", xhr.responseText);
+            var response = JSON.parse(xhr.responseText);
+            if (response.status) {
+              console.log(response.msg);
+            } else {
+              alert(response.msg);
+            }
+          }
+        };
+        xhr.send(params);
+      }
+      // Function to fetch and display reminders
+      function fetchReminders() {
+        fetch("display_reminder.php")
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.status) {
+              let tableBody = document.getElementById("reminderTableBody");
+              tableBody.innerHTML = ""; // Clear previous entries
+
+              data.data.forEach((reminder) => {
+                let row = tableBody.insertRow();
+
+                row.innerHTML = `
+                  <td>${reminder.title}</td>
+                  <td>${reminder.description}</td>
+                  <td>${reminder.date} ${reminder.time}</td>
+                  <td><button onclick="deleteReminder(${reminder.reminder_id});">Delete</button></td>
+                `;
+              });
+            } else {
+              console.log(data.msg); // Handle no reminders case
+              let tableBody = document.getElementById("reminderTableBody");
+              tableBody.innerHTML =
+                '<tr><td colspan="4">No reminders found!</td></tr>';
+            }
+          })
+          .catch((error) => console.error("Error fetching reminders:", error));
+      }
+
+      // Function to delete a reminder
+      function deleteReminder(reminderId) {
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "delete_reminder.php", true);
+        xhr.setRequestHeader(
+          "Content-Type",
+          "application/x-www-form-urlencoded"
+        );
+
+        var params = "reminder_id=" + encodeURIComponent(reminderId);
+
+        xhr.onreadystatechange = function () {
+          if (xhr.readyState === XMLHttpRequest.DONE) {
+            var response = JSON.parse(xhr.responseText);
+            if (response.status) {
+              console.log(response.msg); // Success message
+              fetchReminders(); // Reload reminders after deletion
+            } else {
+              alert(response.msg); // Display error message
+            }
+          }
+        };
+        xhr.send(params);
+      }
+
+      // Fetch reminders on page load
+      window.onload = function () {
+        fetchReminders();
+      };
+    </script>
+  </body>
+</html>

@@ -1,0 +1,88 @@
+#a{
+    font-family:sans-serif  cursive;
+    background: linear-gradient( to right top ,rgb(94, 140, 226),rgba(255, 255, 255, 0.808));
+}
+
+body>div{
+    margin-bottom: 20px;
+}
+
+
+
+.card-img-top{
+    width: 250px;
+    height: 200px;
+}
+.scroll{
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: calc((100% / 4) - 1px );
+    gap: 16px;
+    overflow-x: auto;
+}
+.scroll::-webkit-scrollbar{
+    display: none;
+}
+
+.f :hover{
+    box-shadow: 0 3px 12px rgb(104, 82, 82);
+}
+
+.card-title{
+    pointer-events: none;
+}
+
+#ca{
+    background-color: rgba(255, 255, 0, 0.514);
+}
+#ro{
+    background-color: rgba(85, 51, 6, 0.623);
+}
+#ti{
+    background-color: rgba(0, 162, 255, 0.562);
+}
+#re{
+    background-color: rgba(222, 184, 135, 0.589);
+}
+
+
+.carousel-caption{
+    pointer-events: none;   
+}
+
+@media screen and (min-width:900px){
+    .carousel-inner{
+        height: 600px;
+    }
+    
+}
+
+@media screen and (max-width:899px){
+    .carousel-inner{
+        height: 400px;
+        
+    }
+    
+}
+
+@media screen and (max-width:500px){
+    .carousel-inner{
+        height: 300px;
+        
+    }
+    
+}
+
+@media screen and (max-width:900px){
+    .scroll{
+        grid-auto-columns: calc((100% / 2) - 1px ); 
+    }
+    
+}
+
+@media screen and (max-width:600px){
+    .scroll{
+        grid-auto-columns:50%;
+       
+    }
+}

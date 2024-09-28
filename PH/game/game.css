@@ -1,0 +1,73 @@
+/* Reset margins and paddings */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  background: #7F7FD5;
+	background: -webkit-linear-gradient(to right, #91EAE4, #86A8E7, #7F7FD5);
+	background: linear-gradient(to right, #91EAE4, #86A8E7, #7F7FD5);
+  align-items: normal;
+}
+
+
+body {
+  font-family: Arial, sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items:center ;
+  min-height: 100vh;
+  background-color: #f0f0f0;
+}
+
+/* Container to hold the boxes */
+.container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* 3 boxes per row */
+  grid-gap: 20px; /* Space between the boxes */
+  width: 80%; /* Width of the container */
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Box styling */
+.box {
+  position: relative;
+  display: block;
+  width: 100%;
+  padding-bottom: 70%; /* Maintain square shape */
+  overflow: hidden;
+  border-radius: 20px;
+  text-decoration: none;
+  background-color: #3498db;
+  color: white;
+  font-size: 18px;
+  font-weight: bold;
+  text-align: center;
+}
+
+/* Image inside the box */
+.box img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: opacity 0.3s ease;
+}
+
+/* Text inside the box */
+.box span {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  color: white;
+  font-size: 20px;
+  text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);
+  z-index: 10;
+}
+
+/* Hover effect */
+.box:hover img {
+  opacity: 0.8;
+}
