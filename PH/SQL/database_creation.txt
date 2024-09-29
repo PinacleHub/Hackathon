@@ -1,0 +1,86 @@
+Database name - Calendar
+
+1.Create Table for Calendar
+
+ sql->CREATE TABLE calendar_event_master (
+  event_id int(11) NOT NULL AUTO_INCREMENT,
+  event_name varchar(255) DEFAULT NULL,
+  event_start_date date DEFAULT NULL,
+  event_end_date date DEFAULT NULL,
+  PRIMARY KEY (event_id)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+2.Create a table for Reminder
+
+sql->CREATE TABLE calendar_event_master (
+  event_id int(11) NOT NULL AUTO_INCREMENT,
+  event_name varchar(255) DEFAULT NULL,
+  event_start_date date DEFAULT NULL,
+  event_end_date date DEFAULT NULL,
+  PRIMARY KEY (event_id)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+3. Create Triggers in such a way that the Calendar and Remainder are interlinked with each other
+
+Trigger 1 :  to link the new reminder with an event in calendar_event_master
+You will need to link based on matching event_name from the new reminder to the event in calendar_event_master. Here, we assume that the event_name is unique in calendar_event_master.
+
+sql->DELIMITER //
+CREATE TRIGGER before_insert_event_reminder
+BEFORE INSERT ON event_reminders
+FOR EACH ROW
+BEGIN
+    DECLARE eventCount INT;
+    
+    -- Check if the event exists in calendar_event_master
+    SELECT COUNT(*)
+    INTO eventCount
+    FROM calendar_event_master
+    WHERE event_name = NEW.reminder_title;
+    
+    -- If no event exists, insert a new event
+    IF eventCount = 0 THEN
+        INSERT INTO calendar_event_master (event_name, event_start_date, event_end_date)
+        VALUES (NEW.reminder_title, NEW.reminder_date, NEW.reminder_date);
+    END IF;
+END //
+
+DELIMITER ;
+
+Event 1 : We need a scheduled event or a trigger that checks the time regularly to automatically delete records after the reminder_time has passed.
+
+MySQL doesn't support event-based triggers directly. You will need to use MySQL Events for this purpose, which runs at a scheduled time to delete expired reminders and associated events.
+
+sql->DELIMITER //
+
+CREATE EVENT delete_expired_reminders
+ON SCHEDULE EVERY 1 MINUTE
+DO
+BEGIN
+    -- Step 1: Delete expired reminders
+    DELETE FROM event_reminders 
+    WHERE TIMESTAMP(reminder_date, reminder_time) < NOW();
+
+    -- Step 2: Delete events from calendar_event_master only if they have no corresponding reminders left
+    DELETE FROM calendar_event_master
+    WHERE event_name NOT IN (SELECT reminder_title FROM event_reminders);
+END //
+DELIMITER ;
+
+Trigger 2 : to delete the associated event when a reminder is manually deleted
+This trigger will delete the associated event in calendar_event_master when the corresponding reminder is deleted manually.
+
+sql->DELIMITER //
+CREATE TRIGGER after_delete_event_reminder
+AFTER DELETE ON event_reminders
+FOR EACH ROW
+BEGIN
+    -- Delete the associated event if no other reminder is linked to it
+    DELETE FROM calendar_event_master
+    WHERE event_name = OLD.reminder_title
+    AND event_name NOT IN (SELECT reminder_title FROM event_reminders);
+END //
+
+DELIMITER ;
+
+This trigger will run after a reminder is deleted. It checks if the event_name still exists in event_reminders. If it doesn’t, it deletes the event from calendar_event_master.
